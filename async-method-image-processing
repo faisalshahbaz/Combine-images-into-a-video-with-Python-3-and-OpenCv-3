@@ -1,0 +1,47 @@
+import asyncio
+import time
+from datetime import datetime
+import cv2
+import numpy as np
+from PIL import Image, ImageEnhance
+
+
+async def custom_sleep():
+    await  asyncio.sleep(1)
+
+cap = cv2.VideoCapture(0)
+nparray = []
+async def video_make():
+    print("process 1")
+    while True:
+        ret , frame = cap.read()
+        if frame is not None:
+            nparray.append(frame)
+            await custom_sleep()
+            return nparray
+
+
+count = 0
+async def show_make():
+    print("process 2")
+    global count
+    if len(nparray) is not None:
+        while True:
+            cv2.imshow('video', nparray[count]+1)
+            # count+=1
+            await custom_sleep()
+            cv2.waitKey(1)
+
+    # else:
+    #     cap.release()
+    #     cv2.destroyAllWindows()
+
+
+loop = asyncio.get_event_loop()
+tasks = [
+    asyncio.ensure_future(video_make()),
+    asyncio.ensure_future(show_make())
+]
+loop.run_until_complete(asyncio.wait(tasks))
+loop.close()
+
